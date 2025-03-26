@@ -19,6 +19,7 @@ import 'ride_pref_input_tile.dart';
 ///
 /// The form can be created with an existing RidePref (optional).
 ///
+///
 class RidePrefForm extends StatefulWidget {
   const RidePrefForm({
     super.key,
@@ -35,18 +36,23 @@ class RidePrefForm extends StatefulWidget {
 
 class _RidePrefFormState extends State<RidePrefForm> {
   Location? departure;
-  late DateTime departureDate;
   Location? arrival;
+  late DateTime departureDate;
   late int requestedSeats;
-
-  // ----------------------------------
-  // Initialize the Form attributes
-  // ----------------------------------
 
   @override
   void initState() {
     super.initState();
+    _initializeFormData();
+  }
 
+  @override
+  void didUpdateWidget(RidePrefForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _initializeFormData();
+  }
+
+  void _initializeFormData() {
     if (widget.initialPreference != null) {
       RidePreference current = widget.initialPreference!;
       departure = current.departure;
@@ -54,11 +60,10 @@ class _RidePrefFormState extends State<RidePrefForm> {
       departureDate = current.departureDate;
       requestedSeats = current.requestedSeats;
     } else {
-      // If no given preferences, we select default ones :
-      departure = null; // User shall select the departure
-      departureDate = DateTime.now(); // Now  by default
-      arrival = null; // User shall select the arrival
-      requestedSeats = 1; // 1 seat book by default
+      departure = null;
+      arrival = null;
+      departureDate = DateTime.now();
+      requestedSeats = 1;
     }
   }
 
@@ -132,16 +137,12 @@ class _RidePrefFormState extends State<RidePrefForm> {
   // ----------------------------------
   // Compute the widgets rendering
   // ----------------------------------
-  String get departureLabel =>
-      departure != null ? departure!.name : "Leaving from";
-  String get arrivalLabel => arrival != null ? arrival!.name : "Going to";
-
-  bool get showDeparturePLaceHolder => departure == null;
-  bool get showArrivalPLaceHolder => arrival == null;
-
+  String get departureLabel => departure?.name ?? "Leaving from";
+  String get arrivalLabel => arrival?.name ?? "Going to";
+  bool get showDeparturePlaceHolder => departure == null;
+  bool get showArrivalPlaceHolder => arrival == null;
   String get dateLabel => DateTimeUtils.formatDateTime(departureDate);
   String get numberLabel => requestedSeats.toString();
-
   bool get switchVisible => arrival != null && departure != null;
 
   // ----------------------------------
@@ -159,7 +160,7 @@ class _RidePrefFormState extends State<RidePrefForm> {
             children: [
               // 1 - Input the ride departure
               RidePrefInputTile(
-                isPlaceHolder: showDeparturePLaceHolder,
+                isPlaceHolder: showDeparturePlaceHolder,
                 title: departureLabel,
                 leftIcon: Icons.location_on,
                 onPressed: onDeparturePressed,
@@ -171,7 +172,7 @@ class _RidePrefFormState extends State<RidePrefForm> {
 
               // 2 - Input the ride arrival
               RidePrefInputTile(
-                isPlaceHolder: showArrivalPLaceHolder,
+                isPlaceHolder: showArrivalPlaceHolder,
                 title: arrivalLabel,
                 leftIcon: Icons.location_on,
                 onPressed: onArrivalPressed,
@@ -182,7 +183,7 @@ class _RidePrefFormState extends State<RidePrefForm> {
               RidePrefInputTile(
                 title: dateLabel,
                 leftIcon: Icons.calendar_month,
-                onPressed: () => {},
+                onPressed: () {}, // TODO: Implement date selection
               ),
               const BlaDivider(),
 
@@ -190,7 +191,7 @@ class _RidePrefFormState extends State<RidePrefForm> {
               RidePrefInputTile(
                 title: numberLabel,
                 leftIcon: Icons.person_2_outlined,
-                onPressed: () => {},
+                onPressed: () {}, // TODO: Implement seats selection
               ),
             ],
           ),
