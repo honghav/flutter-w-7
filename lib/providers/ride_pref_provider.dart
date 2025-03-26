@@ -5,27 +5,23 @@ import '../repository/ride_preferences_repository.dart';
 class RidesPreferencesProvider extends ChangeNotifier {
   // Private fields
   RidePreference? _currentPreference;
-  final List<RidePreference> _pastPreferences = [];
+  List<RidePreference> _pastPreferences = [];
   final RidePreferencesRepository repository;
 
   // Constructor - loads initial preferences
   RidesPreferencesProvider({required this.repository}) {
-    _loadInitialPreferences();
+    _pastPreferences = repository.getPastPreferences();
   }
 
   // Get current preference (can be null)
   RidePreference? get currentPreference => _currentPreference;
 
   // Get past preferences from newest to oldest
-  List<RidePreference> get preferencesHistory => 
-      List.unmodifiable(_pastPreferences.reversed);
+  List<RidePreference> get preferencesHistory =>
+      _pastPreferences.reversed.toList();
 
   // // Load initial preferences from repository
-  Future<void> _loadInitialPreferences() async {
-    final prefs = await repository.loadPreferences();
-    _pastPreferences.addAll(prefs);
-    notifyListeners();
-  }
+
 
   // Set current preference and update history
   void setCurrentPreferrence(RidePreference pref) {
@@ -36,10 +32,20 @@ class RidesPreferencesProvider extends ChangeNotifier {
     _currentPreference = pref;
 
     // 3. Update history (ensure exclusivity)
-    _pastPreferences.remove(pref);  // Remove if exists
-    _pastPreferences.add(pref);     // Add as newest
+    _addPreference(pref);
 
     // 4. Notify listeners of changes
     notifyListeners();
+
+
+
+  }
+
+
+  void _addPreference(RidePreference preference) {
+    if (!_pastPreferences.contains(preference)) {
+      _pastPreferences.add(preference);
+      repository.addPreference(preference); // Persist to repository
+    }
   }
 }

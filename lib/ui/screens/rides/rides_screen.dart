@@ -18,20 +18,31 @@ class RidesScreen extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
+  Future<void> onRidePrefSelected(BuildContext context, RidePreference newPreference) async {
+
+    // Update the current preference
+    context.read<RidesPreferencesProvider>().setCurrentPreferrence(newPreference);
+      // Navigate to the rides screen (with bottom-to-top animation)
+      await Navigator.of(context).push(AnimationUtils.createBottomToTopRoute(const RidesScreen()));
+    }
+
   void onPreferencePressed(BuildContext context, RidePreference currentPreference) async {
     // Open modal to edit preferences
-    final RidePreference? newPreference = await Navigator.of(context).push<RidePreference>(
+    final provider = context.read<RidesPreferencesProvider>();
+    final currentPreference = provider.currentPreference;
+    RidePreference? newPreference = await Navigator.of(context).push<RidePreference>(
       AnimationUtils.createTopToBottomRoute(
         RidePrefModal(initialPreference: currentPreference),
       ),
     );
-
     if (newPreference != null) {
       // Update preference using provider
-      context.read<RidesPreferencesProvider>().setCurrentPreferrence(newPreference);
+      provider.setCurrentPreferrence(newPreference);
     }
   }
-
+  void onFilterPressed() {
+    // Implement filter logic here
+  }
   List<Ride> _getMatchingRides(RidePreference preference, RideFilter filter) {
     return RidesService.instance.getRidesFor(preference, filter);
   }
@@ -41,7 +52,7 @@ class RidesScreen extends StatelessWidget {
     // Watch the provider to rebuild when preferences change
     final preferencesProvider = context.watch<RidesPreferencesProvider>();
     final currentPreference = preferencesProvider.currentPreference;
-    
+
     // If no preference set, return empty screen or error state
     if (currentPreference == null) {
       return const Center(child: Text('No ride preference selected'));
@@ -64,7 +75,7 @@ class RidesScreen extends StatelessWidget {
               ridePreference: currentPreference,
               onBackPressed: () => onBackPressed(context),
               onPreferencePressed: () => onPreferencePressed(context, currentPreference),
-              onFilterPressed: () {}, // TODO: Implement filter functionality
+              onFilterPressed: () => onFilterPressed, // TODO: Implement filter functionality
             ),
 
             // Rides list
