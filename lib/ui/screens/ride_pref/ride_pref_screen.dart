@@ -33,8 +33,7 @@ class RidePrefScreen extends StatelessWidget {
     // Watch the provider to rebuild when preferences change
     final preferencesProvider = context.watch<RidesPreferencesProvider>();
     final currentRidePreference = preferencesProvider.currentPreference;
-    final pastPreferences = preferencesProvider.preferencesHistory;
-
+    final pastPreferences = preferencesProvider.pastPreferences;
     return Stack(
       children: [
         const BlaBackground(),
@@ -61,19 +60,24 @@ class RidePrefScreen extends StatelessWidget {
                     onSubmit: (pref) => onRidePrefSelected(context, pref),
                   ),
                   const SizedBox(height: BlaSpacings.m),
-                  SizedBox(
-                    height: 200,
-                    child: ListView.builder(
+                      if (pastPreferences.isLoading)
+                      Center(child: CircularProgressIndicator())
+                      else if (pastPreferences.error != null)
+                      Center(child: Text('No connection. Try later'))
+                      else
+                      SizedBox(
+                      height: 200,
+                      child: ListView.builder(
                       shrinkWrap: true,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: pastPreferences.length,
+                      physics: AlwaysScrollableScrollPhysics(),
+                      itemCount: pastPreferences.data?.length ?? 0,
                       itemBuilder: (ctx, index) => RidePrefHistoryTile(
-                        ridePref: pastPreferences[index],
-                        onPressed: () => onRidePrefSelected(
-                            context, pastPreferences[index]),
+                      ridePref: pastPreferences.data![index],
+                      onPressed: () => onRidePrefSelected(context, pastPreferences.data![index]),
+                      ),
                       ),
                     ),
-                  ),
+
                 ],
               ),
             ),
