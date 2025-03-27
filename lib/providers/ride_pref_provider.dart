@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
+import '../data/repository/ride_preferences_repository.dart';
 import '../model/ride/ride_pref.dart';
-import '../repository/ride_preferences_repository.dart';
 import 'async_value.dart';
 
 class RidesPreferencesProvider extends ChangeNotifier {
